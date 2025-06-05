@@ -9,6 +9,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 import ProjectInfoStep from '@/components/create-project/project-info-step';
 import InfraTypeStep from '@/components/create-project/infra-type-step';
 import NormCategoryStep from '@/components/create-project/norm-category-step';
@@ -20,6 +22,8 @@ import { normCategories, regions, infraTypes } from '@/lib/mock-data';
 const projectSchema = z.object({
   name: z.string().min(2, { message: 'Namnet måste vara minst 2 tecken' }),
   description: z.string().optional(),
+  startDate: z.string().min(1, { message: 'Välj ett startdatum' }),
+  endDate: z.string().min(1, { message: 'Välj ett slutdatum' }),
   infraType: z.string().min(1, { message: 'Välj en infrastrukturtyp' }),
   location: z.string().min(1, { message: 'Ange plats' }),
   region: z.string().min(1, { message: 'Välj en region' }),
@@ -45,6 +49,8 @@ export default function CreateProjectPage() {
     defaultValues: {
       name: '',
       description: '',
+      startDate: '',
+      endDate: '',
       infraType: '',
       location: '',
       region: '',
@@ -139,6 +145,20 @@ export default function CreateProjectPage() {
 
   return (
     <div className="max-w-3xl mx-auto py-6">
+      <div className="flex items-center gap-4 mb-8 pb-4 border-b">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hover:text-foreground"
+          asChild
+        >
+          <Link href="/dashboard">
+            <ChevronLeft className="h-4 w-4" />
+            <span>Tillbaka till dashboard</span>
+          </Link>
+        </Button>
+      </div>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Skapa nytt projekt</h1>
         <p className="text-muted-foreground">

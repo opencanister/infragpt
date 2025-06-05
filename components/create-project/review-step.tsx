@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import { format } from 'date-fns';
+import { sv } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { NormCategory } from '@/types/project';
 import { Badge } from '@/components/ui/badge';
@@ -18,17 +20,11 @@ export default function ReviewStep({ formData, onSubmit, onPrev, normCategories 
 
   const handleSubmit = () => {
     setIsLoading(true);
-    
-    // Call the parent component's submit function
     onSubmit();
-    
-    // In a real app, the redirect would happen after successful API call
     setIsLoading(false);
   };
 
-  // Function to get question prompt based on question key
   const getQuestionPrompt = (questionKey: string): string => {
-    // This would be more robust in a real application
     const questionMap: Record<string, string> = {
       voltageLevel: 'Spänningsnivå',
       networkType: 'Nättyp',
@@ -43,13 +39,10 @@ export default function ReviewStep({ formData, onSubmit, onPrev, normCategories 
     return questionMap[questionKey] || questionKey;
   };
 
-  // Function to get human-readable answer based on question key and value
   const getFormattedAnswer = (questionKey: string, answerValue: string): string => {
-    // Format specific values based on context
     if (questionKey === 'hasTransformer') {
       return answerValue === 'yes' ? 'Ja' : 'Nej';
     }
-    
     return answerValue;
   };
   
@@ -78,7 +71,17 @@ export default function ReviewStep({ formData, onSubmit, onPrev, normCategories 
               </div>
             )}
             
-            <div className="flex gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <span className="text-muted-foreground">Startdatum:</span>{' '}
+                <span>{format(new Date(formData.startDate), 'PPP', { locale: sv })}</span>
+              </div>
+              
+              <div>
+                <span className="text-muted-foreground">Slutdatum:</span>{' '}
+                <span>{format(new Date(formData.endDate), 'PPP', { locale: sv })}</span>
+              </div>
+              
               <div>
                 <span className="text-muted-foreground">Plats:</span>{' '}
                 <span>{formData.location}</span>

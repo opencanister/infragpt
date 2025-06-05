@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Bot, HelpCircle } from 'lucide-react';
+import { Send, Bot, HelpCircle, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { ChatMessage } from '@/types/project';
+import { ChatMessage, NormCategory } from '@/types/project';
 
 interface ProjectChatTabProps {
   projectId: string;
   projectName: string;
+  selectedNorms: NormCategory[];
 }
 
-export default function ProjectChatTab({ projectId, projectName }: ProjectChatTabProps) {
+export default function ProjectChatTab({ projectId, projectName, selectedNorms }: ProjectChatTabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: 'system',
@@ -27,7 +29,6 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -35,7 +36,6 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
     
-    // Add user message
     const userMessage: ChatMessage = {
       sender: 'user',
       message: inputValue.trim(),
@@ -46,11 +46,10 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
     setInputValue('');
     setIsLoading(true);
     
-    // Simulate bot response after a delay
     setTimeout(() => {
       const botMessage: ChatMessage = {
         sender: 'bot',
-        message: `Detta är ett platshållarsvar. I den fullständiga versionen kommer vi att implementera RAG (Retrieval Augmented Generation) för att hämta relevanta svar om infrastrukturnormer baserat på ditt projekt "${projectName}".`,
+        message: `Detta är ett platshållarsvar. I den fullständiga versionen kommer vi att implementera RAG (Retrieval Augmented Generation) för att hämta relevanta svar om infrastrukturnormer baserat på ditt projekt "${projectName}" och de valda normkategorierna: ${selectedNorms.map(n => n.name).join(', ')}.`,
         timestamp: new Date().toISOString(),
       };
       
@@ -73,8 +72,15 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
           <Bot className="h-5 w-5 text-blue-500" />
           Normassistenten
         </CardTitle>
-        <CardDescription>
-          Ställ frågor om normativa krav för ditt projekt
+        <CardDescription className="space-y-2">
+          <p>Ställ frågor om normativa krav för ditt projekt</p>
+          <div className="flex flex-wrap gap-2">
+            {selectedNorms.map((norm) => (
+              <Badge key={norm.id} variant="secondary" className="text-xs">
+                {norm.name}
+              </Badge>
+            ))}
+          </div>
         </CardDescription>
       </CardHeader>
       
@@ -135,10 +141,9 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
                   </AvatarFallback>
                 </Avatar>
                 <div className="bg-slate-200 dark:bg-slate-700 rounded-lg px-4 py-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-400 animate-bounce"></div>
-                    <div className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Analyserar normer...</span>
                   </div>
                 </div>
               </div>
@@ -150,19 +155,22 @@ export default function ProjectChatTab({ projectId, projectName }: ProjectChatTa
         
         <div className="mt-auto">
           <div className="flex flex-wrap gap-2 mb-3">
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <HelpCircle className="h-3 w-3" />
-              <span>Minsta djup för 10 kV-kabel?</span>
-            </Button>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <HelpCircle className="h-3 w-3" />
-              <span>Vilka standarder gäller för {projectName}?</span>
-            </Button>
+            {selectedNorms.map((norm) => (
+              <Button
+                key={norm.id}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <HelpCircle className="h-3 w-3" />
+                <span>Vilka standarder gäller för {norm.name}?</span>
+              </Button>
+            ))}
           </div>
           
           <div className="flex items-center gap-2">
             <Input
-              placeholder="Skriv en fråga om infrastrukturnormer..."
+              placeholder="Ställ en fråga om infrastrukturnormer..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
