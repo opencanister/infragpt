@@ -45,6 +45,11 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
     router.push('/dashboard');
   };
 
+  // Filter normCategories to get only the selected ones
+  const selectedNormCategories = normCategories.filter(
+    category => project.selectedNorms?.includes(category.id)
+  );
+
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-4 pb-4 border-b">
@@ -117,6 +122,7 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
           <ProjectChatTab 
             projectId={project.id} 
             projectName={project.name}
+            selectedNorms={selectedNormCategories}
           />
         </TabsContent>
         
