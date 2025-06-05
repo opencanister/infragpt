@@ -210,7 +210,7 @@ export default function CreateProjectPage() {
 
         <Separator className="mb-6" />
 
-        <form>{renderStep()}</form>
+        {renderStep()}
       </Card>
     </div>
   );
