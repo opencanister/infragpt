@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -46,7 +46,12 @@ interface ProjectInfoStepProps {
 
 export default function ProjectInfoStep({ formData, updateFormData, onNext }: ProjectInfoStepProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const form = useForm<ProjectInfoValues>({
     resolver: zodResolver(projectInfoSchema),
     defaultValues: {
@@ -67,6 +72,11 @@ export default function ProjectInfoStep({ formData, updateFormData, onNext }: Pr
       onNext();
     }, 500);
   }
+
+  const isDateDisabled = (date: Date) => {
+    if (!isClient) return false;
+    return date < new Date() || date > new Date(2025, 11, 31);
+  };
 
   return (
     <Form {...form}>
@@ -139,9 +149,7 @@ export default function ProjectInfoStep({ formData, updateFormData, onNext }: Pr
                       mode="single"
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date) => field.onChange(date?.toISOString())}
-                      disabled={(date) =>
-                        date < new Date() || date > new Date(2025, 11, 31)
-                      }
+                      disabled={isDateDisabled}
                       initialFocus
                     />
                   </PopoverContent>
@@ -181,9 +189,7 @@ export default function ProjectInfoStep({ formData, updateFormData, onNext }: Pr
                       mode="single"
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date) => field.onChange(date?.toISOString())}
-                      disabled={(date) =>
-                        date < new Date() || date > new Date(2025, 11, 31)
-                      }
+                      disabled={isDateDisabled}
                       initialFocus
                     />
                   </PopoverContent>
